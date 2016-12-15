@@ -4,14 +4,12 @@
 RAMSIZE=`grep MemTotal /proc/meminfo | awk '{print $2}'`
 if [ $RAMSIZE -le 40000 ] ; then
     
-     # start haveged in config mode
-     MODE=`uci get gluon-setup-mode.@setup_mode[0].enabled`
-     if [ $MODE == "1" ] ; then
-     	/etc/init.d/haveged start
-     fi
-     
-    # disable and stop haveged if enabled
-    if [ -f /etc/rc.d/S13haveged ] ; then 
+    # start haveged in config mode
+    MODE=`uci get gluon-setup-mode.@setup_mode[0].enabled`
+    if [ $MODE == "1" ] ; then
+    	/etc/init.d/haveged start
+    elif [ -f /etc/rc.d/S13haveged ] ; then
+        # disable and stop haveged if enabled and not in config mode                                                                                 
         /etc/init.d/haveged disable
 	/etc/init.d/haveged stop
     fi
