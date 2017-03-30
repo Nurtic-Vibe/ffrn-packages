@@ -7,13 +7,11 @@ PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
 
-PKG_CONFIG_DEPENDS += $(GLUON_I18N_CONFIG)
-
-
 define Package/ffrn-lowmem-patches
   SECTION:=gluon
   CATEGORY:=Gluon
   TITLE:=Patch files for routers with only 32mb ram
+  DEPENDS:=+gluon-core
 endef
 
 define Build/Prepare
