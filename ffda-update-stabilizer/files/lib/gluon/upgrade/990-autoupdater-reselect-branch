@@ -1,0 +1,70 @@
+#!/usr/bin/lua
+
+local uci = require('simple-uci').cursor()
+
+if uci:get('autoupdater', 'settings', 'branch') ~= 'experimental' then
+  return
+end
+
+local platform_info = require('platform_info')
+
+function Set (list)
+  local set = {}
+  for _, l in ipairs(list) do set[l] = true end
+  return set
+end
+
+local update_branch = false
+
+-- These routers were introduced since the last major
+-- release, so if you wanted to use them you had to
+-- use an experimental image.
+local new_models = Set {
+  'a5-v11',
+  'd-link-dir-860l-b1',
+  'gl-ar300m',
+  'lamobo-r1',
+  'lemaker-banana-pi',
+  'lemaker-banana-pro',
+  'linksys-wrt1200ac',
+  'netgear-wndrmac',
+  'netgear-wnr2200',
+  'tp-link-archer-c25-v1',
+  'tp-link-archer-c2600',
+  'tp-link-tl-wr1043n-v5',
+  'tp-link-tl-wr841n-nd-v12',
+  'ubiquiti-ls-sr71',
+  'meraki-mr12',
+  'eraki-mr16',
+  'meraki-mr62',
+  'meraki-mr66',
+  'mikrotik-nand-64m',
+  'mikrotik-nand-large',
+  'ubnt-erx-sfp',
+  'ubnt-erx',
+  'vocore-16M',
+  'vocore2',
+  'vocore-8M',
+  'zbt-wg3526'
+}
+
+if new_models[platform_info.get_image_name()] then
+  update_branch = true  
+  print('[+] device was introduced after latest stable release')
+end
+
+
+-- Theres devices which are installed by Volksbank-KRP,
+-- the local distributor sets them up for experimental/nightly updates :/
+if uci:get_first('system', 'system', 'hostname'):match('^Volksbank-KRP-') then
+  update_branch = true
+  print('[+] system.system.hostname ~= \'^Volksbank-KRP-\'')
+end
+
+
+if update_branch then
+  uci:set('autoupdater', 'settings', 'branch', 'stable')
+  uci:save('autoupdater')
+  print('[+] autoupdater branch set to stable')
+end
+
